@@ -115,3 +115,4 @@ python server.py
 - **File lớn**: Các tài liệu lớn (ví dụ: file JSON > 500KB) sẽ được xử lý theo batch với thanh tiến trình real-time. Quá trình này có thể mất vài phút tùy dung lượng file.
 - **Microphone**: Đảm bảo micrô đã được cấp quyền truy cập đầy đủ trên trình duyệt nếu bạn muốn sử dụng tính năng Voice Input.
 - **Ollama**: Đảm bảo Ollama đang chạy trước khi khởi động ứng dụng. Nếu gặp lỗi kết nối embedding, hãy kiểm tra lại trạng thái Ollama bằng lệnh `ollama list`.
+# rag-extract-document-webchat
