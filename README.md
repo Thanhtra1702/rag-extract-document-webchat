@@ -1,118 +1,118 @@
-# OmniChat RAG 🚀
+# OmniChat RAG
 
-OmniChat RAG là một ứng dụng trợ lý ảo AI cao cấp (ChatGPT/Gemini-style) tích hợp tìm kiếm cơ sở tri thức động (Retrieval-Augmented Generation - RAG). Ứng dụng cho phép người dùng trò chuyện tự nhiên với các tài liệu cá nhân được tải lên trực tiếp tại thời điểm chạy.
+A locally hosted RAG web application for chatting with documents through Ollama. It supports document uploads, content extraction, semantic search, streamed responses, layout-aware OCR, and voice input.
 
----
+## Features
 
-## ✨ Tính Năng Nổi Bật
+- Chat with documents in isolated sessions.
+- Stream responses in real time using Server-Sent Events (SSE).
+- Process PDF, DOCX, TXT, CSV, JSON, XLSX, Markdown, PPTX, and common image formats.
+- Analyze PDF and image layouts with OCR and image captioning.
+- Store vectors in ChromaDB and generate embeddings with `bge-m3`.
+- Use `qwen2.5:3b` as the default chat model.
+- Transcribe voice input with Faster-Whisper.
+- Manage chat history, uploaded documents, and processing progress from the web interface.
 
-- **💻 Giao diện Premium Dark Mode**: Thiết kế tối giản, hiện đại lấy cảm hứng từ ChatGPT và Gemini với hiệu ứng chuyển động mượt mà.
-- **📂 Hỗ trợ Đa định dạng Tài liệu**: Tải lên trực tiếp các file `.pdf`, `.docx`, `.txt`, `.csv`, `.json`, `.xlsx`, `.md`, `.pptx` để đưa vào cơ sở tri thức (Knowledge Base).
-  - **Tối ưu hóa JSON**: Tự động lọc thẻ HTML và flatten JSON lồng nhau thành văn bản dễ đọc để các LLM nhỏ hiểu tốt hơn.
-- **📡 Streaming Phản hồi (SSE)**: Trả câu trả lời dạng gõ chữ từng ký tự mượt mà (typewriter effect) thông qua cơ chế Server-Sent Events.
-- **💬 Trạng thái Chờ thông minh**: 
-  - Hiển thị hiệu ứng **3 dấu chấm nhấp nhô** (Bouncing Dots) ngay khi gửi câu hỏi để tạo cảm giác phản hồi tức thì.
-  - Hiển thị **3 dấu chấm nhấp nháy** ở cuối văn bản khi nội dung đang được in ra thay vì con trỏ gạch dọc truyền thống.
-- **🎙️ Trò chuyện bằng Giọng nói (Voice Input)**: Thu âm giọng nói trực tiếp qua micro với giao diện hiệu ứng **sóng âm thanh (Audio Wave)** và **đồng hồ đếm thời gian** thu âm. Tự động chuyển đổi sang văn bản bằng mô hình **Faster-Whisper** chạy trực tiếp trên CPU.
-- **🖼️ Trích dẫn ngữ cảnh trực quan (Visual Context)**: Tự động đính kèm hình ảnh minh họa từ tài liệu nguồn nếu câu trả lời sử dụng thông tin từ tài liệu đó. (Hỗ trợ đọc ảnh từ metadata và quét link trực tiếp trong nội dung văn bản).
-- **🎭 Phong Cách Trả Lời Thích Ứng (Adaptive Tone)**: Trợ lý ảo tự động phân tích và bắt chước phong cách nói chuyện của người dùng (gần gũi teen-code, trang trọng, lịch sự, hài hước) để tạo sự kết nối tự nhiên, không bị máy móc.
-- **📁 Quản lý Lịch sử Chat chuyên nghiệp**: 
-  - Sidebar quản lý các phiên chat cũ/mới (History sessions) lưu trữ cục bộ dưới dạng file JSON.
-  - Nút đóng/mở sidebar linh hoạt ở cả góc chính và góc phụ, tự động ẩn thanh bar khi sidebar mở để tối ưu không gian hiển thị.
-- **📤 Upload Tài liệu lớn với Thanh Tiến Trình**: 
-  - Xử lý tài liệu theo **batch (20 chunks/batch)** để tránh quá tải mô hình embedding.
-  - Hiển thị **thanh tiến trình (progress bar) real-time** trong toast notification khi upload, cho biết chính xác số chunks đã xử lý / tổng số chunks.
-  - Tự động retry từng chunk riêng lẻ nếu một batch bị lỗi.
-- **📋 Quản lý Tài liệu đã Upload**: 
-  - Hiển thị danh sách các tài liệu đã upload trong sidebar (Knowledge Base & Session Files).
-  - Hỗ trợ xóa từng tài liệu trực tiếp từ giao diện.
+## Technology Stack
 
----
+- Backend: FastAPI, LangChain, ChromaDB
+- AI runtime: Ollama, PaddleOCR, Faster-Whisper
+- Frontend: HTML, CSS, and JavaScript
+- Local storage: `db/`, `chat_sessions/`, and `uploaded_files/`
 
-## 🛠️ Công Nghệ Sử Dụng
+## Requirements
 
-### Backend (Python & LangChain Stack)
-- **FastAPI**: Khung phát triển API hiệu năng cao với hỗ trợ StreamingResponse và SSE.
-- **LangChain**: Xây dựng luồng xử lý RAG (`create_history_aware_retriever`, `create_retrieval_chain`).
-- **ChromaDB**: Cơ sở dữ liệu vector lưu trữ nhúng (embeddings) tài liệu cục bộ tại thư mục `./db`.
-- **Ollama**:
-  - LLM: `qwen2.5:3b` (mô hình nhẹ và mạnh mẽ cho Tiếng Việt và Tiếng Anh).
-  - Embeddings: `bge-m3` (được tối ưu hóa tối đa cho RAG).
-- **Faster-Whisper**: Chuyển giọng nói thành văn bản từ file âm thanh WebM.
+- Python 3.10 or later; Python 3.11 is recommended.
+- [Ollama](https://ollama.com/) installed and running.
+- Git and a modern web browser.
 
-### Frontend (Modern SPA)
-- **HTML5 & CSS3**: Giao diện Responsive cao cấp, hỗ trợ hoàn hảo cả máy tính lẫn thiết bị di động.
-- **JavaScript (ES6+)**: Xử lý logic Single Page Application (SPA), đọc luồng SSE stream reader, xử lý thu âm MediaRecorder API, quản lý trạng thái tải.
+For scanned PDFs, `pdf2image` is preferred when Poppler is available. Otherwise, the application can use PyMuPDF as a fallback.
 
----
+## Installation
 
-## 🚀 Hướng Dẫn Cài Đặt
+### 1. Create a virtual environment
 
-### 1. Yêu cầu hệ thống
-- Python 3.10 trở lên.
-- [Ollama](https://ollama.com/) đã được cài đặt và đang chạy ngầm.
+Windows PowerShell:
 
-### 2. Tải các mô hình cần thiết trên Ollama
-Mở Terminal / Command Prompt và chạy lệnh:
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+
 ```bash
-# Tải mô hình LLM chính
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 3. Download the Ollama models
+
+```bash
 ollama pull qwen2.5:3b
-
-# Tải mô hình nhúng văn bản
 ollama pull bge-m3
+ollama pull glm-ocr:latest
 ```
 
-### 3. Cài đặt các thư viện Python
-Kích hoạt môi trường ảo (Virtual Environment) của bạn và cài đặt các phụ thuộc:
-```bash
-pip install fastapi uvicorn pydantic PyPDF2 python-docx openpyxl python-pptx langchain langchain-chroma langchain-ollama faster-whisper
+`glm-ocr:latest` is the default model used to caption images in the document-analysis pipeline.
 
-# Khuyến nghị cho pipeline parse document theo layout -> OCR/VLM
-pip install pymupdf easyocr opencv-python
+### 4. Configure environment variables
 
-# Tùy chọn: nếu muốn dùng layoutparser với model ngoài
-pip install layoutparser
+Create a `.env` file in the project root if you need to override the default configuration:
 
-# Khuyến nghị mạnh cho scanned PDF/form parsing
-pip install paddlepaddle paddleocr
+```dotenv
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_FIGURE_CAPTION_MODEL=glm-ocr:latest
+
+# Optional: an external layout model compatible with the application
+# OMNICHAT_LAYOUT_MODEL=lp://PubLayNet/faster_rcnn_R_50_FPN_3x/config
 ```
 
-Biến môi trường liên quan đến pipeline document:
-```bash
-# Tùy chọn: model layoutparser nếu bạn có endpoint/model tương thích
-set OMNICHAT_LAYOUT_MODEL=lp://PubLayNet/faster_rcnn_R_50_FPN_3x/config
-```
+The `.env` file is excluded from Git. Do not commit API keys or other secrets to the repository.
 
-### 4. Khởi chạy ứng dụng
-Chạy script chính để kích hoạt server FastAPI:
+### 5. Start the application
+
 ```bash
 python server.py
 ```
-Ứng dụng sẽ tự động chạy tại: [http://localhost:8000](http://localhost:8000)
 
----
+Open [http://localhost:8000](http://localhost:8000). When started directly, the server listens on `0.0.0.0:8000` with auto-reload enabled.
 
-## 📂 Cấu Trúc Thư Mục Dự Án
+## Supported Formats
+
+| Category | Formats |
+| --- | --- |
+| Documents | `.pdf`, `.docx`, `.txt`, `.csv`, `.json`, `.xlsx`, `.md`, `.pptx` |
+| Images | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp` |
+
+## Project Structure
 
 ```text
-├── chat_sessions/          # Thư mục lưu trữ lịch sử chat dưới dạng file JSON
-├── db/                     # Cơ sở dữ liệu Vector ChromaDB
-├── static/                 # Giao diện Frontend (SPA)
-│   ├── index.html          # Khung cấu trúc HTML
-│   ├── style.css           # Định nghĩa CSS & Animations
-│   └── app.js              # Xử lý Logic JavaScript (Stream Reader, Mic, Upload Progress)
-├── file_processor.py       # Trích xuất văn bản từ tài liệu (.pdf, .docx, .xlsx, .json, ...)
-├── config.py               # Cấu hình runtime và nạp mô hình Ollama/Whisper
-├── rag_engine.py           # Core xử lý RAG (Retrieval-Augmented Generation)
-└── server.py               # API FastAPI và điểm chạy server chính
+.
+├── static/                 # Web interface
+├── config.py               # Ollama and Faster-Whisper configuration
+├── document_parser.py      # Layout analysis, OCR, and image captioning
+├── file_processor.py       # Document extraction and chunking
+├── rag_engine.py           # Retrieval, embeddings, and answer generation
+├── server.py               # FastAPI routes and application entry point
+├── requirements.txt        # Python dependencies
+├── chat_sessions/          # Chat history generated at runtime
+├── db/                     # ChromaDB data generated at runtime
+└── uploaded_files/         # Uploaded files and parser cache
 ```
 
----
+The runtime data directories above, along with local model caches, are excluded through `.gitignore`.
 
-## 💡 Lưu Ý Khi Sử Dụng
+## Notes
 
-- **Tài liệu theo phiên chat**: Mọi tài liệu tải lên chỉ được lưu và tra cứu trong phiên chat hiện tại. Các phiên chat khác không thể truy cập tài liệu này.
-- **File lớn**: Các tài liệu lớn (ví dụ: file JSON > 500KB) sẽ được xử lý theo batch với thanh tiến trình real-time. Quá trình này có thể mất vài phút tùy dung lượng file.
-- **Microphone**: Đảm bảo micrô đã được cấp quyền truy cập đầy đủ trên trình duyệt nếu bạn muốn sử dụng tính năng Voice Input.
-- **Ollama**: Đảm bảo Ollama đang chạy trước khi khởi động ứng dụng. Nếu gặp lỗi kết nối embedding, hãy kiểm tra lại trạng thái Ollama bằng lệnh `ollama list`.
-# rag-extract-document-webchat
+- Make sure Ollama is running and all required models have been downloaded before starting the application.
+- OCR, Faster-Whisper, and layout-processing models may take additional time to download or initialize on first use.
+- The pipeline prefers a compatible GPU when available and falls back to the CPU for supported components.
+- Documents, chat history, and vector data are stored locally. Back them up separately if they need to be preserved.
