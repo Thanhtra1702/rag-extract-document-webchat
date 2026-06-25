@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FreeChat Workbench">
+    <title>FreeChat Workbench</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=parser-chat-20260624-1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    </script>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                FreeChat
+            </div>
+            <button class="sidebar-toggle" id="sidebar-toggle-inner" title="Collapse sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+            </button>
+        </div>
+
+        <button class="new-chat-btn" id="new-chat-btn" title="New Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Chat
+        </button>
+
+        <div class="session-list" id="session-list">
+            <div class="session-label">Recent</div>
+            <!-- Session items injected by JS -->
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="upload-section" id="session-docs-section" style="display: none;">
+                <div class="upload-label">Session Files</div>
+                <div class="uploaded-docs-list" id="session-docs-list"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ============ MAIN ============ -->
+    <div class="main">
+
+        <div class="topbar">
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+            </button>
+            <div id="topbar-title" style="display: none;"></div>
+        </div>
+
+        <!-- Chat area -->
+        <div class="chat-area" id="chat-area">
+            <!-- Drag and Drop Overlay -->
+            <div class="drag-overlay" id="drag-overlay" style="display: none;">
+                <div class="drag-card">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;margin-bottom:12px;color:var(--text-primary);">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span style="font-size:15px;font-weight:500;">Drop files here to upload</span>
+                </div>
+            </div>
+
+            <!-- Welcome screen (shown when no messages) -->
+            <div class="welcome" id="welcome-screen">
+                <h1>How can I help you today?</h1>
+            </div>
+
+            <!-- Messages container -->
+            <div class="messages" id="messages" style="display:none;"></div>
+        </div>
+
+        <!-- Input area -->
+        <div class="input-area">
+            <div class="input-bar" id="input-bar">
+                <!-- Dropdown menu button (Plus button) -->
+                <div class="input-menu-container" id="input-menu-container">
+                    <button class="input-btn" id="plus-btn" title="Add">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div class="input-dropdown-menu" id="input-dropdown-menu" style="display: none;">
+                        <button class="dropdown-item" id="menu-upload-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                            </svg>
+                            <span>Upload documents</span>
+                        </button>
+                        <button class="dropdown-item" id="menu-parse-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                                <polyline points="14 3 14 9 20 9"/>
+                                <path d="M8 13h8"/>
+                                <path d="M8 17h5"/>
+                            </svg>
+                            <span>Parse document</span>
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="file-input" multiple
+                       accept=".pdf,.docx,.txt,.csv,.json,.xlsx,.md,.pptx,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+
+                <!-- Text input -->
+                <textarea class="input-text" id="message-input"
+                          placeholder="Ask anything..."
+                          rows="1"></textarea>
+
+                <!-- Mic button -->
+                <button class="input-btn" id="mic-btn" title="Voice input">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </button>
+
+                <!-- Send button -->
+                <button class="send-btn" id="send-btn" title="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============ DOCUMENT PARSER VIEW ============ -->
+    <div class="parser-view" id="parser-view" style="display: none;">
+        <!-- Parser topbar -->
+        <div class="parser-topbar">
+            <div class="parser-breadcrumbs">
+                <span>Sessions</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="breadcrumb-sep"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>Document Parser</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="breadcrumb-sep"><polyline points="9 18 15 12 9 6"/></svg>
+                <span id="parser-filename-breadcrumb" class="active">file.pdf</span>
+            </div>
+            
+            <div class="parser-page-controls">
+                <button class="parser-nav-btn" id="parser-prev-btn" title="Previous page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span class="parser-page-indicator" id="parser-page-indicator">Page 1 / 1</span>
+                <button class="parser-nav-btn" id="parser-next-btn" title="Next page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+            
+            <div class="parser-top-actions">
+                <button class="parser-action-btn close" id="parser-close-btn" title="Back to chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Parser workspace split screen -->
+        <div class="parser-workspace">
+            <!-- Left Pane: Visual Viewer -->
+            <div class="parser-left-pane">
+                <!-- Dropzone inside left pane -->
+                <div class="parser-upload-zone" id="parser-upload-zone" style="display: none;">
+                    <div class="parser-upload-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <h3>Upload Document to Parse</h3>
+                        <p>Drag a document here or click to choose a file</p>
+                        <button class="parser-select-file-btn" id="parser-select-file-btn">Choose document</button>
+                        <span class="upload-formats">Supported formats: PDF, PNG, JPG, JPEG, BMP...</span>
+                        
+                        <!-- Mini progress bar for upload inside parser -->
+                        <div class="parser-upload-progress" id="parser-upload-progress" style="display: none;">
+                            <div class="parser-progress-bar-bg">
+                                <div class="parser-progress-bar-fill" id="parser-progress-bar-fill"></div>
+                            </div>
+                            <span class="parser-progress-text" id="parser-progress-text">Processing...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="file" id="parser-file-input" style="display: none;" accept=".pdf,.docx,.txt,.csv,.json,.xlsx,.md,.pptx,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+
+                <div class="parser-viewer-scroller">
+                    <div class="parser-viewer-container" id="parser-viewer-container">
+                        <canvas id="pdf-render-canvas" class="pdf-canvas"></canvas>
+                        <img id="image-render-view" class="img-view" style="display: none;" />
+                        <div id="text-render-view" class="text-render-view" style="display: none;"></div>
+                        <div class="bounding-boxes-overlay" id="bounding-boxes-overlay"></div>
+                    </div>
+                </div>
+
+                <div class="parser-file-strip" id="parser-file-strip">
+                    <div class="parser-file-strip-header">
+                        <span id="parser-file-strip-title">Files (0)</span>
+                        <button class="parser-file-strip-toggle" id="parser-file-strip-toggle" title="Collapse files">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="parser-file-strip-body" id="parser-file-strip-body">
+                        <button class="parser-file-upload-tile" id="parser-file-upload-tile" title="Upload another document">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </button>
+                        <div class="parser-file-thumbs" id="parser-file-thumbs"></div>
+                        <div class="parser-file-strip-progress" id="parser-file-strip-progress" style="display: none;">
+                            <div class="parser-progress-bar-bg">
+                                <div class="parser-progress-bar-fill" id="parser-file-strip-progress-fill"></div>
+                            </div>
+                            <span class="parser-progress-text" id="parser-file-strip-progress-text">Processing...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="parser-resize-handle" id="parser-resize-handle" role="separator" aria-orientation="vertical" title="Drag to resize panels"></div>
+            
+            <!-- Right Pane: Structured Details -->
+            <div class="parser-right-pane">
+                <div class="parser-tabs">
+                    <div class="parser-tab-group">
+                        <button class="parser-tab active" data-tab="markdown">Markdown</button>
+                        <button class="parser-tab" data-tab="json">JSON</button>
+                        <button class="parser-tab" data-tab="chat">Chat</button>
+                    </div>
+                    <div class="parser-tab-actions">
+                        <button class="parser-toolbar-btn" id="parser-output-download-btn" title="Download parsed output">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </button>
+                        <button class="parser-toolbar-btn" id="parser-output-copy-btn" title="Copy parsed output">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="parser-pane-content">
+                    <!-- Tab Parse Content -->
+                    <div class="parser-tab-panel active" id="parser-panel-markdown">
+                        <div class="parsed-blocks-list" id="parsed-blocks-list">
+                            <!-- Parsed blocks dynamically injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Extract Content -->
+                    <div class="parser-tab-panel" id="parser-panel-extract">
+                        <div class="extract-view">
+                            <div class="parsed-blocks-list" id="extracted-blocks-list"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab JSON Content -->
+                    <div class="parser-tab-panel" id="parser-panel-json">
+                        <div class="json-pre-container">
+                            <pre><code id="parser-json-code"></code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Chat Content -->
+                    <div class="parser-tab-panel" id="parser-panel-chat">
+                        <div class="parser-chat-container">
+                            <div class="parser-chat-messages" id="parser-chat-messages">
+                                <div class="parser-chat-welcome">
+                                    <h3>Document Q&A</h3>
+                                    <p>RAG is enabled for this document. You can ask questions about its content.</p>
+                                </div>
+                            </div>
+                            <div class="parser-chat-input-area">
+                                <div class="parser-chat-input-bar">
+                                    <textarea id="parser-chat-input" placeholder="Ask something about this document..." rows="1"></textarea>
+                                    <button id="parser-chat-send-btn" class="parser-send-btn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="22" y1="2" x2="11" y2="13"/>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/static/app.js?v=parser-chat-20260624-1"></script>
+</body>
+</html>
